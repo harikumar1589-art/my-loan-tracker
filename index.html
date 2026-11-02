@@ -1,14 +1,1102 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#123f38"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Loan Ledger"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><title>My Loan Ledger</title><style>
-:root{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#193b34;background:#f5f7f3}*{box-sizing:border-box}body{margin:0}header{background:#123f38;color:white;padding:24px 18px 20px}h1{font-size:24px;margin:0 0 4px}header p{margin:0;color:#c8e1d7;font-size:13px}.wrap{max-width:750px;margin:auto}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}.stat{background:#28584d;border-radius:15px;padding:14px}.stat:first-child{grid-column:1/-1}.stat small{display:block;color:#d1e7df;margin-bottom:5px}.stat strong{font-size:24px}.stat:not(:first-child) strong{font-size:19px}nav{display:flex;gap:6px;padding:12px;background:#fff;position:sticky;top:0;z-index:2;border-bottom:1px solid #e2e8e1}nav button{flex:1;border:0;border-radius:10px;padding:12px 5px;background:#edf2ed;color:#35594e;font-weight:700}nav button.active{background:#175447;color:#fff}main{padding:16px}.panel{background:white;border:1px solid #e1e8e1;border-radius:16px;padding:17px;margin-bottom:13px;box-shadow:0 3px 10px #123f3810}h2{font-size:18px;margin:0 0 15px}h3{margin:0 0 8px;font-size:16px}.muted{color:#698078;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv{padding:8px 0}.kv small{display:block;color:#698078}.kv b{display:block;margin-top:4px}label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}input,select,textarea{width:100%;border:1px solid #cbd8d0;border-radius:10px;padding:12px;font-size:16px;background:#fff;color:#183e34}button{cursor:pointer}.primary,.secondary,.danger{border:0;border-radius:10px;padding:12px 15px;font-size:14px;font-weight:700}.primary{background:#175447;color:#fff}.secondary{background:#e8f1ec;color:#175447}.danger{background:#fff0ed;color:#a33e30}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.hide{display:none!important}.empty{text-align:center;padding:35px;color:#6c8278}.pill{background:#e8f1ec;color:#185b4c;padding:5px 9px;border-radius:99px;font-size:12px}.notice{padding:12px;background:#fff5df;border-radius:10px;color:#725522;font-size:13px;line-height:1.5}.payment{padding:10px 0;border-bottom:1px solid #e6eee8;font-size:14px}.payment:last-child{border:0}footer{text-align:center;padding:20px;color:#70857c;font-size:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.right{text-align:right}.help{line-height:1.55;font-size:13px;color:#506a60}button:focus-visible,input:focus-visible{outline:3px solid #8ccab2;outline-offset:2px}@media(min-width:700px){header{border-radius:0 0 18px 18px}}
-</style></head><body><div class="wrap"><header><h1>My Loan Ledger</h1><p>Private loan and interest tracker · Works offline after installation</p><div class="stats"><div class="stat"><small>Outstanding principal</small><strong id="total">₹0</strong></div><div class="stat"><small>Monthly interest estimate</small><strong id="monthly">₹0</strong></div><div class="stat"><small>Interest collected</small><strong id="collected">₹0</strong></div></div></header><nav><button data-tab="dashboard" class="active">Overview</button><button data-tab="loans">Loans</button><button data-tab="new">+ Add loan</button><button data-tab="settings">Backup</button></nav><main>
-<section id="dashboard"><div class="panel"><h2>Overview</h2><div class="grid"><div class="kv"><small>Active loans</small><b id="active">0</b></div><div class="kv"><small>Principal repaid</small><b id="repaid">₹0</b></div></div><p class="muted">Monthly estimate uses current outstanding principal and each loan's simple monthly rate. It is not an overdue-interest calculation.</p></div><div class="panel"><h2>Recent payments</h2><div id="recent"></div></div><div class="notice">Your records stay on this device in browser storage. They are not automatically synced or backed up. Export a backup regularly and keep it somewhere secure.</div></section>
-<section id="loans" class="hide"><h2>Borrowers and loans</h2><div id="loanList"></div></section>
-<section id="new" class="hide"><div class="panel"><h2>Add a loan</h2><form id="loanForm"><label for="borrower">Borrower name</label><input id="borrower" required maxlength="100" placeholder="Borrower name"><label for="principal">Amount lent (₹)</label><input id="principal" type="number" min="0.01" step="0.01" required><label for="rate">Simple monthly interest rate (%)</label><input id="rate" type="number" min="0" max="100" step="0.01" required placeholder="e.g. 2 for 2% per month"><label for="date">Loan start date</label><input id="date" type="date" required><label for="notes">Notes (optional)</label><textarea id="notes" rows="2" maxlength="500" placeholder="Agreement or reference"></textarea><div class="actions"><button class="primary" type="submit">Save loan</button></div></form></div></section>
-<section id="settings" class="hide"><div class="panel"><h2>Backup and restore</h2><p class="help">Download a JSON backup of all loans and payments. Save it to the Files app or another private location. A backup contains personal financial details and is <b>not encrypted</b>.</p><div class="actions"><button id="export" class="primary">Download backup</button><button id="exportCsv" class="secondary">Export CSV report</button></div><label for="restore">Restore from JSON backup</label><input type="file" id="restore" accept=".json,application/json"><p class="notice">Restoring replaces all current records on this device. Export your current backup first.</p></div><div class="panel"><h2>Privacy and usage</h2><p class="help">No account, server or subscription is needed. Data is stored locally on this device. Deleting website data, reinstalling, or losing your phone can erase it. There is no automatic PIN, encryption or cloud sync. For best offline results, open the hosted app once while online, then add it to your Home Screen in Safari.</p></div></section>
-<section id="detail" class="hide"><div class="panel"><div class="row"><h2 id="detailTitle">Loan</h2><button id="back" class="secondary">Back</button></div><div id="detailInfo"></div><h3>Record a payment</h3><form id="paymentForm"><label for="paymentAmount">Amount received (₹)</label><input type="number" id="paymentAmount" min="0.01" step="0.01" required><label for="paymentType">Payment type</label><select id="paymentType"><option value="interest">Interest received</option><option value="principal">Principal repaid</option></select><label for="paymentDate">Date received</label><input type="date" id="paymentDate" required><label for="paymentNote">Note (optional)</label><input id="paymentNote" maxlength="250"><div class="actions"><button class="primary" type="submit">Save payment</button></div></form></div><div class="panel"><h2>Payment history</h2><div id="paymentList"></div><div class="actions"><button id="deleteLoan" class="danger">Delete loan and payments</button></div></div></section>
-</main><footer>My Loan Ledger · Offline-first personal tracker</footer></div><script>
-'use strict';const KEY='my-loan-ledger-v1';const INR=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});const today=()=>new Date().toLocaleDateString('en-CA');const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random();let data={loans:[],payments:[]},current=null;try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&Array.isArray(saved.loans)&&Array.isArray(saved.payments))data=saved}catch(e){alert('Saved data could not be read. Do not add records before recovering a backup.')}const $=id=>document.getElementById(id);function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){alert('Unable to save on this device. Export a backup and check available storage.');return false}}function balance(l){return Math.max(0,l.principal-data.payments.filter(p=>p.loanId===l.id&&p.type==='principal').reduce((s,p)=>s+p.amount,0))}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function switchTab(t){document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hide',s.id!==t));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));window.scrollTo(0,0)}document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{render();switchTab(b.dataset.tab)}));function render(){let outstanding=data.loans.reduce((s,l)=>s+balance(l),0),repaid=data.payments.filter(p=>p.type==='principal').reduce((s,p)=>s+p.amount,0),interest=data.payments.filter(p=>p.type==='interest').reduce((s,p)=>s+p.amount,0);$('total').textContent=INR(outstanding);$('monthly').textContent=INR(data.loans.reduce((s,l)=>s+balance(l)*l.rate/100,0));$('collected').textContent=INR(interest);$('repaid').textContent=INR(repaid);$('active').textContent=data.loans.filter(l=>balance(l)>0).length;let recent=[...data.payments].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);$('recent').innerHTML=recent.length?recent.map(p=>{let l=data.loans.find(x=>x.id===p.loanId);return `<div class="payment row"><div><b>${esc(l?.name||'Deleted loan')}</b><br><span class="muted">${esc(p.date)} · ${p.type==='interest'?'Interest':'Principal'}</span></div><b>${INR(p.amount)}</b></div>`}).join(''):'<div class="empty">No payments recorded yet.</div>';$('loanList').innerHTML=data.loans.length?data.loans.map(l=>`<div class="panel"><div class="row"><h3>${esc(l.name)}</h3><span class="pill">${l.rate}% / month</span></div><div class="grid"><div class="kv"><small>Outstanding</small><b>${INR(balance(l))}</b></div><div class="kv"><small>Monthly estimate</small><b>${INR(balance(l)*l.rate/100)}</b></div></div><p class="muted">Started ${esc(l.date)}</p><button class="secondary" data-open="${esc(l.id)}">View / record payment</button></div>`).join(''):'<div class="empty">No loans yet. Use + Add loan to get started.</div>';document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openLoan(b.dataset.open));if(current)renderDetail()}
-function openLoan(id){current=id;renderDetail();switchTab('detail')}function renderDetail(){let l=data.loans.find(x=>x.id===current);if(!l){current=null;switchTab('loans');return}$('detailTitle').textContent=l.name;let ps=data.payments.filter(p=>p.loanId===l.id),pi=ps.filter(p=>p.type==='interest').reduce((s,p)=>s+p.amount,0),pp=ps.filter(p=>p.type==='principal').reduce((s,p)=>s+p.amount,0);$('detailInfo').innerHTML=`<div class="grid"><div class="kv"><small>Original loan</small><b>${INR(l.principal)}</b></div><div class="kv"><small>Outstanding</small><b>${INR(balance(l))}</b></div><div class="kv"><small>Interest received</small><b>${INR(pi)}</b></div><div class="kv"><small>Principal repaid</small><b>${INR(pp)}</b></div></div><p class="muted">${l.rate}% monthly · Started ${esc(l.date)}<br>${esc(l.notes||'')}</p>`;$('paymentList').innerHTML=ps.length?[...ps].sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<div class="payment row"><div><b>${INR(p.amount)}</b><br><span class="muted">${esc(p.date)} · ${p.type==='interest'?'Interest':'Principal'} · ${esc(p.note||'')}</span></div><button class="danger" data-delete-payment="${esc(p.id)}" aria-label="Delete payment">Delete</button></div>`).join(''):'<p class="muted">No payments yet.</p>';document.querySelectorAll('[data-delete-payment]').forEach(b=>b.onclick=()=>{if(confirm('Delete this payment?')){data.payments=data.payments.filter(p=>p.id!==b.dataset.deletePayment);save();render()}})}
-$('date').value=today();$('paymentDate').value=today();$('loanForm').onsubmit=e=>{e.preventDefault();let name=$('borrower').value.trim(),principal=Number($('principal').value),rate=Number($('rate').value),date=$('date').value;if(!name||!Number.isFinite(principal)||principal<=0||!Number.isFinite(rate)||rate<0||rate>100||!date)return alert('Enter valid loan details.');data.loans.push({id:uid(),name,principal,rate,date,notes:$('notes').value.trim()});if(save()){$('loanForm').reset();$('date').value=today();render();switchTab('loans')}};$('paymentForm').onsubmit=e=>{e.preventDefault();let l=data.loans.find(x=>x.id===current),amount=Number($('paymentAmount').value),type=$('paymentType').value,date=$('paymentDate').value;if(!l||!Number.isFinite(amount)||amount<=0||!date)return alert('Enter a valid payment.');if(type==='principal'&&amount>balance(l)+0.001)return alert('Principal repayment exceeds outstanding balance.');data.payments.push({id:uid(),loanId:current,amount,type,date,note:$('paymentNote').value.trim()});if(save()){$('paymentForm').reset();$('paymentDate').value=today();render()}};$('back').onclick=()=>{current=null;render();switchTab('loans')};$('deleteLoan').onclick=()=>{let l=data.loans.find(x=>x.id===current);if(l&&confirm('Permanently delete '+l.name+' and all its payments?')){data.loans=data.loans.filter(x=>x.id!==current);data.payments=data.payments.filter(x=>x.loanId!==current);current=null;save();render();switchTab('loans')}};
-function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}$('export').onclick=()=>download(new Blob([JSON.stringify({app:'My Loan Ledger',version:1,exportedAt:new Date().toISOString(),...data},null,2)],{type:'application/json'}),'loan-ledger-backup-'+today()+'.json');$('exportCsv').onclick=()=>{let rows=[['Borrower','Start date','Original principal','Outstanding principal','Monthly rate percent','Interest received','Principal repaid'],...data.loans.map(l=>[l.name,l.date,l.principal,balance(l),l.rate,data.payments.filter(p=>p.loanId===l.id&&p.type==='interest').reduce((s,p)=>s+p.amount,0),data.payments.filter(p=>p.loanId===l.id&&p.type==='principal').reduce((s,p)=>s+p.amount,0)])];let csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/^[=+@-]/,"'$&").replace(/"/g,'""')+'"').join(',')).join('\r\n');download(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),'loan-ledger-report-'+today()+'.csv')};$('restore').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{if(f.size>5e6)throw Error('Backup file is too large');let obj=JSON.parse(await f.text());if(!Array.isArray(obj.loans)||!Array.isArray(obj.payments))throw Error('Invalid backup format');let ids=new Set();for(let l of obj.loans){if(typeof l.id!=='string'||ids.has(l.id)||typeof l.name!=='string'||!Number.isFinite(l.principal)||l.principal<=0||!Number.isFinite(l.rate)||l.rate<0||l.rate>100||typeof l.date!=='string')throw Error('Invalid loan data');ids.add(l.id)}for(let p of obj.payments){if(!ids.has(p.loanId)||!['interest','principal'].includes(p.type)||!Number.isFinite(p.amount)||p.amount<=0||typeof p.date!=='string')throw Error('Invalid payment data')}if(confirm('Replace ALL existing loans and payments with this backup?')){data={loans:obj.loans,payments:obj.payments};if(save()){current=null;render();switchTab('dashboard');alert('Backup restored successfully.')}}}catch(err){alert('Could not restore: '+err.message)}e.target.value=''};render();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-</script></body></html>
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interest & Loan Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col antialiased">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-indigo-900 text-white border-b border-indigo-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white shadow-inner">
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-none tracking-tight">Interest & Loan Ledger</h1>
+                    <p class="text-xs text-indigo-300 mt-0.5">Private Financial Tracker</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="openModal('addLoanModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                    <i data-lucide="user-plus" class="w-4 h-4 mr-1.5"></i>
+                    <span class="hidden sm:inline">New Loan</span>
+                </button>
+                <button onclick="openModal('logPaymentModal')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i>
+                    <span>Log Payment</span>
+                </button>
+                <div class="h-6 w-px bg-indigo-700 mx-1"></div>
+                <button onclick="exportDataJSON()" title="Export JSON Backup" class="p-2 text-indigo-200 hover:text-white hover:bg-indigo-800 rounded-lg transition">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+                <label title="Import Backup JSON" class="p-2 text-indigo-200 hover:text-white hover:bg-indigo-800 rounded-lg transition cursor-pointer">
+                    <i data-lucide="upload" class="w-5 h-5"></i>
+                    <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importDataJSON(event)">
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Tab Navigation -->
+        <div class="border-b border-slate-200 flex space-x-6 text-sm font-medium">
+            <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn border-b-2 border-indigo-600 text-indigo-600 pb-3 flex items-center">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 mr-2"></i>Dashboard
+            </button>
+            <button onclick="switchTab('loans')" id="tab-btn-loans" class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 flex items-center">
+                <i data-lucide="users" class="w-4 h-4 mr-2"></i>Borrowers & Loans
+            </button>
+            <button onclick="switchTab('payments')" id="tab-btn-payments" class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 flex items-center">
+                <i data-lucide="receipt" class="w-4 h-4 mr-2"></i>Payment Logs
+            </button>
+            <button onclick="switchTab('reports')" id="tab-btn-reports" class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 flex items-center">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 mr-2"></i>Yearly Summaries
+            </button>
+        </div>
+
+        <!-- Notification / Message Banner -->
+        <div id="toastMessage" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transition-all duration-300">
+            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+            <span id="toastText" class="text-sm font-medium">Action completed successfully.</span>
+        </div>
+
+        <!-- TAB 1: DASHBOARD OVERVIEW -->
+        <div id="tab-dashboard" class="tab-content space-y-6">
+            
+            <!-- Summary KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Total Principal Active -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Active Principal</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1" id="dash-total-principal">₹0</h3>
+                        <p class="text-xs text-slate-500 mt-1" id="dash-active-count">0 Active Loans</p>
+                    </div>
+                    <div class="bg-indigo-50 p-3 rounded-xl text-indigo-600">
+                        <i data-lucide="piggy-bank" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Monthly Target vs Received -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">This Month's Interest</p>
+                        <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="dash-month-actual">₹0</h3>
+                        <p class="text-xs text-slate-500 mt-1">Expected: <span id="dash-month-expected" class="font-semibold text-slate-700">₹0</span></p>
+                    </div>
+                    <div class="bg-emerald-50 p-3 rounded-xl text-emerald-600">
+                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Total Interest Collected (All Time) -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total All-Time Interest</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1" id="dash-alltime-interest">₹0</h3>
+                        <p class="text-xs text-slate-500 mt-1">This Year: <span id="dash-thisyear-interest" class="font-semibold text-slate-700">₹0</span></p>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-xl text-amber-600">
+                        <i data-lucide="coins" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Pending Status Count -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Payment Health</p>
+                        <h3 class="text-2xl font-bold text-amber-600 mt-1" id="dash-pending-count">0 Pending</h3>
+                        <p class="text-xs text-slate-500 mt-1" id="dash-month-name">For Current Month</p>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-xl text-amber-600">
+                        <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Month Due Tracking Matrix -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div>
+                        <h2 class="font-bold text-slate-900 flex items-center">
+                            <i data-lucide="calendar" class="w-4 h-4 mr-2 text-indigo-600"></i>
+                            Current Month Payment Status (<span id="currentMonthLabel"></span>)
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Quick glance at who has paid interest for this month</p>
+                    </div>
+                    <span class="text-xs font-semibold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full" id="monthProgressBadge">0/0 Paid</span>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="currentMonthCards">
+                        <!-- Dynamic Cards for active loans will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action & Recent Log Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h2 class="font-bold text-slate-900 flex items-center">
+                        <i data-lucide="clock" class="w-4 h-4 mr-2 text-indigo-600"></i>
+                        Recent Collections
+                    </h2>
+                    <button onclick="switchTab('payments')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+                        View All <i data-lucide="chevron-right" class="w-3.5 h-3.5 ml-1"></i>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium text-xs uppercase tracking-wider">
+                                <th class="py-3 px-6">Date</th>
+                                <th class="py-3 px-6">Borrower</th>
+                                <th class="py-3 px-6">Amount</th>
+                                <th class="py-3 px-6">Method</th>
+                                <th class="py-3 px-6">For Month</th>
+                                <th class="py-3 px-6 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentPaymentsTable" class="divide-y divide-slate-100">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: BORROWERS & LOANS -->
+        <div id="tab-loans" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Borrower Accounts</h2>
+                    <p class="text-xs text-slate-500">Manage principal amounts, interest rates, and loan statuses</p>
+                </div>
+                <button onclick="openModal('addLoanModal')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm">
+                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Add Borrower Loan
+                </button>
+            </div>
+
+            <!-- Loan Cards / Table -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="loansListGrid">
+                <!-- Dynamic Loans Rendered Here -->
+            </div>
+        </div>
+
+        <!-- TAB 3: PAYMENT LOGS -->
+        <div id="tab-payments" class="tab-content hidden space-y-6">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-64">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" id="searchPayments" placeholder="Search borrower or note..." onkeyup="filterPayments()" class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <select id="filterBorrower" onchange="filterPayments()" class="border border-slate-200 rounded-lg text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">All Borrowers</option>
+                    </select>
+                    <select id="filterYear" onchange="filterPayments()" class="border border-slate-200 rounded-lg text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">All Years</option>
+                    </select>
+                </div>
+                <button onclick="openModal('logPaymentModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm w-full md:w-auto justify-center">
+                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Log Interest Payment
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium text-xs uppercase tracking-wider">
+                                <th class="py-3 px-6">Payment Date</th>
+                                <th class="py-3 px-6">Borrower</th>
+                                <th class="py-3 px-6">Payment Month</th>
+                                <th class="py-3 px-6">Amount Paid</th>
+                                <th class="py-3 px-6">Mode</th>
+                                <th class="py-3 px-6">Notes / Ref</th>
+                                <th class="py-3 px-6 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullPaymentsTable" class="divide-y divide-slate-100">
+                            <!-- Dynamic Payment Logs -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: YEARLY SUMMARIES & REPORTS -->
+        <div id="tab-reports" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900 mb-1">Yearly Earnings Breakdown</h2>
+                <p class="text-xs text-slate-500 mb-6">Total interest income categorized by year and borrower</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium text-xs uppercase tracking-wider">
+                                <th class="py-3 px-6">Year</th>
+                                <th class="py-3 px-6">Total Received</th>
+                                <th class="py-3 px-6">Total Payments Made</th>
+                                <th class="py-3 px-6">Top Paying Borrower</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yearlySummaryTable" class="divide-y divide-slate-100">
+                            <!-- Yearly Summary Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL 1: ADD / EDIT BORROWER LOAN -->
+    <div id="addLoanModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-lg" id="loanModalTitle">Add New Borrower Loan</h3>
+                <button onclick="closeModal('addLoanModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="loanForm" onsubmit="saveLoan(event)" class="p-6 space-y-4">
+                <input type="hidden" id="loanId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Borrower Full Name *</label>
+                    <input type="text" id="borrowerName" required placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contact Number</label>
+                        <input type="text" id="borrowerContact" placeholder="e.g. +91 9876543210" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Loan Given Date *</label>
+                        <input type="date" id="loanStartDate" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Principal Amount (₹) *</label>
+                        <input type="number" id="principalAmount" min="0" step="100" required placeholder="e.g. 100000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" oninput="calculateExpectedInterestPreview()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Interest Rate *</label>
+                        <div class="flex">
+                            <input type="number" id="interestRate" step="0.01" min="0" required placeholder="2" class="w-full px-3 py-2 border border-slate-200 rounded-l-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" oninput="calculateExpectedInterestPreview()">
+                            <select id="rateType" class="bg-slate-100 border border-l-0 border-slate-200 rounded-r-lg text-xs font-medium px-2 text-slate-600" onchange="calculateExpectedInterestPreview()">
+                                <option value="monthly">% / Month</option>
+                                <option value="yearly">% / Year</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Due Day of Month</label>
+                        <input type="number" id="dueDay" min="1" max="31" value="1" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Loan Status</label>
+                        <select id="loanStatus" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                            <option value="Active">Active</option>
+                            <option value="Settled">Settled / Closed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Live Expected Interest Preview -->
+                <div class="p-3 bg-indigo-50 rounded-xl text-xs text-indigo-900 flex justify-between items-center font-medium">
+                    <span>Calculated Monthly Interest:</span>
+                    <span id="previewMonthlyInterest" class="text-sm font-bold text-indigo-700">₹0 / month</span>
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addLoanModal')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm font-medium">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow">Save Loan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: LOG INTEREST PAYMENT -->
+    <div id="logPaymentModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-lg">Log Monthly Interest</h3>
+                <button onclick="closeModal('logPaymentModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="paymentForm" onsubmit="savePayment(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Select Borrower / Loan *</label>
+                    <select id="payLoanId" required onchange="autoFillInterestAmount()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                        <!-- Options filled via JS -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Payment Month/Year *</label>
+                        <input type="month" id="payForMonth" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Payment Date *</label>
+                        <input type="date" id="payDate" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Interest Received (₹) *</label>
+                        <input type="number" id="payAmount" min="0" step="1" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Payment Mode</label>
+                        <select id="payMethod" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                            <option value="UPI / Google Pay / PhonePe">UPI / GPay / PhonePe</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer (NEFT/IMPS)">Bank Transfer</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Reference / Note</label>
+                    <input type="text" id="payNotes" placeholder="e.g. Txn ID: 3948201934 or Partial Payment" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('logPaymentModal')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm font-medium">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium shadow">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: PRINCIPAL REPAYMENT -->
+    <div id="repayPrincipalModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-lg">Reduce Principal Amount</h3>
+                <button onclick="closeModal('repayPrincipalModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="repayForm" onsubmit="savePrincipalRepayment(event)" class="p-6 space-y-4">
+                <input type="hidden" id="repayLoanId">
+                <p class="text-xs text-slate-500">Record partial principal returned by borrower. This automatically reduces future monthly expected interest.</p>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Amount Returned (₹) *</label>
+                    <input type="number" id="repayAmount" required min="1" step="100" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Repayment Date *</label>
+                    <input type="date" id="repayDate" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div class="pt-2 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('repayPrincipalModal')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm font-medium">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow">Update Principal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: WHATSAPP / SMS REMINDER DRAFT -->
+    <div id="reminderModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center">
+                    <i data-lucide="message-square" class="w-5 h-5 mr-2 text-emerald-600"></i>
+                    Send Payment Reminder
+                </h3>
+                <button onclick="closeModal('reminderModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Reminder Template Preview</label>
+                    <textarea id="reminderText" rows="5" class="w-full p-3 border border-slate-200 rounded-xl text-sm font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 text-slate-700"></textarea>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="sendWhatsAppReminder()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl text-sm flex items-center justify-center shadow">
+                        <i data-lucide="send" class="w-4 h-4 mr-2"></i> Open in WhatsApp
+                    </button>
+                    <button onclick="copyReminderText()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-sm flex items-center justify-center">
+                        <i data-lucide="copy" class="w-4 h-4 mr-2"></i> Copy Message to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- APPLICATION JAVASCRIPT LOGIC -->
+    <script>
+        // State Management
+        let loans = [];
+        let payments = [];
+        let currentReminderPhone = "";
+
+        // Initialization
+        window.onload = function () {
+            loadFromLocalStorage();
+            
+            // Set default dates in inputs
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonthStr = new Date().toISOString().slice(0, 7);
+            
+            if(document.getElementById('loanStartDate')) document.getElementById('loanStartDate').value = today;
+            if(document.getElementById('payDate')) document.getElementById('payDate').value = today;
+            if(document.getElementById('payForMonth')) document.getElementById('payForMonth').value = currentMonthStr;
+            if(document.getElementById('repayDate')) document.getElementById('repayDate').value = today;
+
+            refreshApp();
+            lucide.createIcons();
+        };
+
+        // --- LOCAL STORAGE ---
+        function saveToLocalStorage() {
+            localStorage.setItem('tracker_loans_v1', JSON.stringify(loans));
+            localStorage.setItem('tracker_payments_v1', JSON.stringify(payments));
+        }
+
+        function loadFromLocalStorage() {
+            const savedLoans = localStorage.getItem('tracker_loans_v1');
+            const savedPayments = localStorage.getItem('tracker_payments_v1');
+
+            if (savedLoans) {
+                loans = JSON.parse(savedLoans);
+            } else {
+                // Default Sample Data for first-time view
+                loans = [
+                    { id: '101', name: 'Ramesh Kumar', contact: '+91 9876543210', principal: 200000, startDate: '2025-01-10', rate: 2, rateType: 'monthly', dueDay: 10, status: 'Active' },
+                    { id: '102', name: 'Vikram Singh', contact: '+91 9123456789', principal: 100000, startDate: '2025-02-01', rate: 1.5, rateType: 'monthly', dueDay: 5, status: 'Active' }
+                ];
+            }
+
+            if (savedPayments) {
+                payments = JSON.parse(savedPayments);
+            } else {
+                const curMonth = new Date().toISOString().slice(0, 7);
+                payments = [
+                    { id: 'p1', loanId: '101', amount: 4000, date: new Date().toISOString().split('T')[0], forMonth: curMonth, method: 'UPI / Google Pay / PhonePe', notes: 'GPay Ref 309482' }
+                ];
+            }
+        }
+
+        // --- CORE UI RENDER & DASHBOARD COMPUTATIONS ---
+        function refreshApp() {
+            renderDashboard();
+            renderLoansList();
+            renderPaymentsList();
+            renderYearlyReports();
+            populateLoanSelectDropdown();
+            populateYearFilter();
+            lucide.createIcons();
+        }
+
+        function getMonthlyExpectedInterest(loan) {
+            if (!loan || loan.status !== 'Active') return 0;
+            const r = parseFloat(loan.rate) || 0;
+            const p = parseFloat(loan.principal) || 0;
+            if (loan.rateType === 'monthly') {
+                return (p * r) / 100;
+            } else { // yearly
+                return (p * (r / 12)) / 100;
+            }
+        }
+
+        function renderDashboard() {
+            const currentMonthStr = new Date().toISOString().slice(0, 7); // e.g. "2026-10"
+            const currentYearStr = new Date().getFullYear().toString();
+
+            // 1. Total Active Principal
+            const activeLoans = loans.filter(l => l.status === 'Active');
+            const totalPrincipal = activeLoans.reduce((sum, l) => sum + parseFloat(l.principal), 0);
+            document.getElementById('dash-total-principal').innerText = '₹' + totalPrincipal.toLocaleString('en-IN');
+            document.getElementById('dash-active-count').innerText = `${activeLoans.length} Active Loan(s)`;
+
+            // 2. Expected Monthly Income vs Actual Received (Current Month)
+            let totalExpectedMonthly = activeLoans.reduce((sum, l) => sum + getMonthlyExpectedInterest(l), 0);
+            
+            const currentMonthPayments = payments.filter(p => p.forMonth === currentMonthStr);
+            const totalActualMonthly = currentMonthPayments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+            document.getElementById('dash-month-expected').innerText = '₹' + totalExpectedMonthly.toLocaleString('en-IN');
+            document.getElementById('dash-month-actual').innerText = '₹' + totalActualMonthly.toLocaleString('en-IN');
+
+            // 3. All time & Current Year Interest
+            const allTimeInterest = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+            const thisYearInterest = payments.filter(p => p.date.startsWith(currentYearStr)).reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+            document.getElementById('dash-alltime-interest').innerText = '₹' + allTimeInterest.toLocaleString('en-IN');
+            document.getElementById('dash-thisyear-interest').innerText = '₹' + thisYearInterest.toLocaleString('en-IN');
+
+            // 4. Payment Health & Matrix
+            const monthDateObj = new Date();
+            const monthNameStr = monthDateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+            document.getElementById('currentMonthLabel').innerText = monthNameStr;
+            document.getElementById('dash-month-name').innerText = `Status for ${monthDateObj.toLocaleString('default', { month: 'short' })}`;
+
+            let paidCount = 0;
+            const currentMonthCardsContainer = document.getElementById('currentMonthCards');
+            currentMonthCardsContainer.innerHTML = '';
+
+            if (activeLoans.length === 0) {
+                currentMonthCardsContainer.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 text-sm">No active loans found. Add a borrower loan to get started.</div>`;
+            } else {
+                activeLoans.forEach(loan => {
+                    const expInterest = getMonthlyExpectedInterest(loan);
+                    // check payments for this borrower for current month
+                    const borrowerPaid = payments
+                        .filter(p => p.loanId === loan.id && p.forMonth === currentMonthStr)
+                        .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+                    const isFullyPaid = borrowerPaid >= expInterest && expInterest > 0;
+                    const isPartial = borrowerPaid > 0 && borrowerPaid < expInterest;
+
+                    if (isFullyPaid) paidCount++;
+
+                    let statusBadge = `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> Pending</span>`;
+                    if (isFullyPaid) {
+                        statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center"><i data-lucide="check" class="w-3 h-3 mr-1"></i> Paid</span>`;
+                    } else if (isPartial) {
+                        statusBadge = `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-semibold flex items-center"><i data-lucide="pie-chart" class="w-3 h-3 mr-1"></i> Partial (₹${borrowerPaid})</span>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "p-4 border border-slate-200 rounded-xl bg-slate-50/50 flex flex-col justify-between space-y-3";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-slate-900">${loan.name}</h4>
+                                <p class="text-xs text-slate-500">Expected: ₹${expInterest.toLocaleString('en-IN')} / mo</p>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 text-xs">
+                            <span class="text-slate-500">Due Day: ${loan.dueDay}th</span>
+                            <div class="flex space-x-2">
+                                <button onclick="quickLogForBorrower('${loan.id}')" class="text-indigo-600 hover:text-indigo-800 font-semibold">Log Pay</button>
+                                <span class="text-slate-300">|</span>
+                                <button onclick="openReminderModal('${loan.id}')" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center">
+                                    <i data-lucide="message-square" class="w-3 h-3 mr-1"></i>Remind
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    currentMonthCardsContainer.appendChild(card);
+                });
+            }
+
+            document.getElementById('dash-pending-count').innerText = `${activeLoans.length - paidCount} Pending`;
+            document.getElementById('monthProgressBadge').innerText = `${paidCount}/${activeLoans.length} Paid`;
+
+            // Recent Payments Table (Limit 5)
+            const recentTable = document.getElementById('recentPaymentsTable');
+            recentTable.innerHTML = '';
+            const sortedPayments = [...payments].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+            if (sortedPayments.length === 0) {
+                recentTable.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">No interest payment records yet.</td></tr>`;
+            } else {
+                sortedPayments.forEach(p => {
+                    const loan = loans.find(l => l.id === p.loanId);
+                    const bName = loan ? loan.name : 'Unknown';
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50/80 transition";
+                    tr.innerHTML = `
+                        <td class="py-3 px-6 text-xs text-slate-600">${p.date}</td>
+                        <td class="py-3 px-6 font-semibold text-slate-800 text-xs">${bName}</td>
+                        <td class="py-3 px-6 font-bold text-emerald-600 text-xs">₹${parseFloat(p.amount).toLocaleString('en-IN')}</td>
+                        <td class="py-3 px-6 text-xs text-slate-500">${p.method}</td>
+                        <td class="py-3 px-6 text-xs text-slate-600">${p.forMonth}</td>
+                        <td class="py-3 px-6 text-right">
+                            <button onclick="deletePayment('${p.id}')" class="text-slate-400 hover:text-red-600 transition" title="Delete Log"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    `;
+                    recentTable.appendChild(tr);
+                });
+            }
+        }
+
+        // --- TAB 2: LOANS & BORROWER MANAGMENT ---
+        function renderLoansList() {
+            const grid = document.getElementById('loansListGrid');
+            grid.innerHTML = '';
+
+            if (loans.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No active borrower profiles. Click "Add Borrower Loan" above to create one.</div>`;
+                return;
+            }
+
+            loans.forEach(loan => {
+                const expInterest = getMonthlyExpectedInterest(loan);
+                const totalInterestCollected = payments.filter(p => p.loanId === loan.id).reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base">${loan.name}</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">${loan.contact || 'No Contact Info'}</p>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${loan.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+                                ${loan.status}
+                            </span>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl text-xs">
+                            <div>
+                                <p class="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Principal</p>
+                                <p class="font-bold text-slate-800 text-sm mt-0.5">₹${parseFloat(loan.principal).toLocaleString('en-IN')}</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Interest Rate</p>
+                                <p class="font-bold text-indigo-600 text-sm mt-0.5">${loan.rate}% / ${loan.rateType === 'monthly' ? 'mo' : 'yr'}</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Monthly Return</p>
+                                <p class="font-bold text-emerald-600 mt-0.5">₹${expInterest.toLocaleString('en-IN')}</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 font-medium uppercase tracking-wider text-[10px]">Total Earned</p>
+                                <p class="font-bold text-amber-600 mt-0.5">₹${totalInterestCollected.toLocaleString('en-IN')}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-xs text-slate-500 flex justify-between">
+                            <span>Started: ${loan.startDate}</span>
+                            <span>Due Day: ${loan.dueDay}th</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold">
+                        <button onclick="openRepayPrincipalModal('${loan.id}')" class="text-indigo-600 hover:text-indigo-800 flex items-center">
+                            <i data-lucide="minus-circle" class="w-3.5 h-3.5 mr-1"></i> Repay Principal
+                        </button>
+                        <div class="flex space-x-2">
+                            <button onclick="editLoan('${loan.id}')" class="text-slate-500 hover:text-slate-800"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteLoan('${loan.id}')" class="text-slate-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- TAB 3: PAYMENTS LOGS & FILTERS ---
+        function populateYearFilter() {
+            const select = document.getElementById('filterYear');
+            select.innerHTML = '<option value="ALL">All Years</option>';
+            const years = [...new Set(payments.map(p => p.forMonth.split('-')[0]))].sort().reverse();
+            years.forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.innerText = y;
+                select.appendChild(opt);
+            });
+        }
+
+        function filterPayments() {
+            renderPaymentsList();
+        }
+
+        function renderPaymentsList() {
+            const searchVal = document.getElementById('searchPayments').value.toLowerCase();
+            const borrowerFilter = document.getElementById('filterBorrower').value;
+            const yearFilter = document.getElementById('filterYear').value;
+
+            const table = document.getElementById('fullPaymentsTable');
+            table.innerHTML = '';
+
+            let filtered = payments.filter(p => {
+                const loan = loans.find(l => l.id === p.loanId);
+                const bName = loan ? loan.name.toLowerCase() : '';
+                const matchSearch = bName.includes(searchVal) || (p.notes && p.notes.toLowerCase().includes(searchVal));
+                const matchBorrower = borrowerFilter === 'ALL' || p.loanId === borrowerFilter;
+                const matchYear = yearFilter === 'ALL' || p.forMonth.startsWith(yearFilter);
+                return matchSearch && matchBorrower && matchYear;
+            });
+
+            filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            if (filtered.length === 0) {
+                table.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 text-xs">No matching payment logs found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const loan = loans.find(l => l.id === p.loanId);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition text-xs";
+                tr.innerHTML = `
+                    <td class="py-3 px-6 text-slate-600">${p.date}</td>
+                    <td class="py-3 px-6 font-bold text-slate-800">${loan ? loan.name : 'Unknown'}</td>
+                    <td class="py-3 px-6 font-medium text-indigo-600">${p.forMonth}</td>
+                    <td class="py-3 px-6 font-bold text-emerald-600 text-sm">₹${parseFloat(p.amount).toLocaleString('en-IN')}</td>
+                    <td class="py-3 px-6 text-slate-500">${p.method}</td>
+                    <td class="py-3 px-6 text-slate-500 max-w-xs truncate">${p.notes || '-'}</td>
+                    <td class="py-3 px-6 text-right">
+                        <button onclick="deletePayment('${p.id}')" class="text-slate-400 hover:text-red-600 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </td>
+                `;
+                table.appendChild(tr);
+            });
+        }
+
+        // --- TAB 4: YEARLY SUMMARIES & REPORTS ---
+        function renderYearlyReports() {
+            const table = document.getElementById('yearlySummaryTable');
+            table.innerHTML = '';
+
+            // Group payments by Year
+            const yearlyData = {};
+
+            payments.forEach(p => {
+                const yr = p.forMonth.split('-')[0];
+                if (!yearlyData[yr]) {
+                    yearlyData[yr] = { total: 0, count: 0, borrowers: {} };
+                }
+                yearlyData[yr].total += parseFloat(p.amount);
+                yearlyData[yr].count += 1;
+
+                if (!yearlyData[yr].borrowers[p.loanId]) {
+                    yearlyData[yr].borrowers[p.loanId] = 0;
+                }
+                yearlyData[yr].borrowers[p.loanId] += parseFloat(p.amount);
+            });
+
+            const yearsSorted = Object.keys(yearlyData).sort().reverse();
+
+            if (yearsSorted.length === 0) {
+                table.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-400 text-xs">No payment history to generate yearly summaries.</td></tr>`;
+                return;
+            }
+
+            yearsSorted.forEach(yr => {
+                const data = yearlyData[yr];
+                
+                // Find top paying borrower for this year
+                let topBorrowerId = null;
+                let topAmt = 0;
+                for (let bId in data.borrowers) {
+                    if (data.borrowers[bId] > topAmt) {
+                        topAmt = data.borrowers[bId];
+                        topBorrowerId = bId;
+                    }
+                }
+
+                const topLoan = loans.find(l => l.id === topBorrowerId);
+                const topBorrowerText = topLoan ? `${topLoan.name} (₹${topAmt.toLocaleString('en-IN')})` : '-';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition text-xs";
+                tr.innerHTML = `
+                    <td class="py-3 px-6 font-bold text-indigo-700 text-sm">${yr}</td>
+                    <td class="py-3 px-6 font-bold text-emerald-600 text-sm">₹${data.total.toLocaleString('en-IN')}</td>
+                    <td class="py-3 px-6 text-slate-600">${data.count} Payments</td>
+                    <td class="py-3 px-6 text-slate-700 font-medium">${topBorrowerText}</td>
+                `;
+                table.appendChild(tr);
+            });
+        }
+
+        // --- FORM HANDLERS & MODAL ACTIONS ---
+        function calculateExpectedInterestPreview() {
+            const p = parseFloat(document.getElementById('principalAmount').value) || 0;
+            const r = parseFloat(document.getElementById('interestRate').value) || 0;
+            const type = document.getElementById('rateType').value;
+
+            let mRate = r;
+            if (type === 'yearly') mRate = r / 12;
+
+            const monthlyVal = (p * mRate) / 100;
+            document.getElementById('previewMonthlyInterest').innerText = `₹${monthlyVal.toLocaleString('en-IN')} / month`;
+        }
+
+        function saveLoan(e) {
+            e.preventDefault();
+            const id = document.getElementById('loanId').value || Date.now().toString();
+            const loanObj = {
+                id: id,
+                name: document.getElementById('borrowerName').value.trim(),
+                contact: document.getElementById('borrowerContact').value.trim(),
+                principal: parseFloat(document.getElementById('principalAmount').value),
+                startDate: document.getElementById('loanStartDate').value,
+                rate: parseFloat(document.getElementById('interestRate').value),
+                rateType: document.getElementById('rateType').value,
+                dueDay: parseInt(document.getElementById('dueDay').value) || 1,
+                status: document.getElementById('loanStatus').value
+            };
+
+            const index = loans.findIndex(l => l.id === id);
+            if (index > -1) {
+                loans[index] = loanObj;
+            } else {
+                loans.push(loanObj);
+            }
+
+            saveToLocalStorage();
+            closeModal('addLoanModal');
+            refreshApp();
+            showToast('Borrower loan saved successfully!');
+        }
+
+        function editLoan(id) {
+            const loan = loans.find(l => l.id === id);
+            if (!loan) return;
+
+            document.getElementById('loanId').value = loan.id;
+            document.getElementById('borrowerName').value = loan.name;
+            document.getElementById('borrowerContact').value = loan.contact;
+            document.getElementById('principalAmount').value = loan.principal;
+            document.getElementById('loanStartDate').value = loan.startDate;
+            document.getElementById('interestRate').value = loan.rate;
+            document.getElementById('rateType').value = loan.rateType;
+            document.getElementById('dueDay').value = loan.dueDay;
+            document.getElementById('loanStatus').value = loan.status;
+
+            document.getElementById('loanModalTitle').innerText = "Edit Borrower Loan";
+            calculateExpectedInterestPreview();
+            openModal('addLoanModal');
+        }
+
+        function deleteLoan(id) {
+            if (confirm("Are you sure you want to delete this borrower profile and all associated logs?")) {
+                loans = loans.filter(l => l.id !== id);
+                payments = payments.filter(p => p.loanId !== id);
+                saveToLocalStorage();
+                refreshApp();
+                showToast("Loan profile deleted.");
+            }
+        }
+
+        function populateLoanSelectDropdown() {
+            const paySelect = document.getElementById('payLoanId');
+            const filterSelect = document.getElementById('filterBorrower');
+
+            paySelect.innerHTML = '';
+            filterSelect.innerHTML = '<option value="ALL">All Borrowers</option>';
+
+            const activeLoans = loans.filter(l => l.status === 'Active');
+
+            if (activeLoans.length === 0) {
+                paySelect.innerHTML = `<option value="">No Active Loans Available</option>`;
+            } else {
+                activeLoans.forEach(l => {
+                    const opt = document.createElement('option');
+                    opt.value = l.id;
+                    opt.innerText = `${l.name} (Exp: ₹${getMonthlyExpectedInterest(l)})`;
+                    paySelect.appendChild(opt);
+                });
+            }
+
+            loans.forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l.id;
+                opt.innerText = l.name;
+                filterSelect.appendChild(opt);
+            });
+        }
+
+        function autoFillInterestAmount() {
+            const loanId = document.getElementById('payLoanId').value;
+            const loan = loans.find(l => l.id === loanId);
+            if (loan) {
+                document.getElementById('payAmount').value = getMonthlyExpectedInterest(loan);
+            }
+        }
+
+        function quickLogForBorrower(loanId) {
+            openModal('logPaymentModal');
+            document.getElementById('payLoanId').value = loanId;
+            autoFillInterestAmount();
+        }
+
+        function savePayment(e) {
+            e.preventDefault();
+            const loanId = document.getElementById('payLoanId').value;
+            if (!loanId) {
+                alert("Please select a valid borrower loan.");
+                return;
+            }
+
+            const paymentObj = {
+                id: Date.now().toString(),
+                loanId: loanId,
+                forMonth: document.getElementById('payForMonth').value,
+                date: document.getElementById('payDate').value,
+                amount: parseFloat(document.getElementById('payAmount').value),
+                method: document.getElementById('payMethod').value,
+                notes: document.getElementById('payNotes').value.trim()
+            };
+
+            payments.push(paymentObj);
+            saveToLocalStorage();
+            closeModal('logPaymentModal');
+            refreshApp();
+            showToast("Interest payment recorded!");
+        }
+
+        function deletePayment(id) {
+            if (confirm("Delete this payment log?")) {
+                payments = payments.filter(p => p.id !== id);
+                saveToLocalStorage();
+                refreshApp();
+                showToast("Payment record deleted.");
+            }
+        }
+
+        // --- PRINCIPAL REPAYMENT REDUCTION ---
+        function openRepayPrincipalModal(loanId) {
+            document.getElementById('repayLoanId').value = loanId;
+            document.getElementById('repayAmount').value = '';
+            openModal('repayPrincipalModal');
+        }
+
+        function savePrincipalRepayment(e) {
+            e.preventDefault();
+            const loanId = document.getElementById('repayLoanId').value;
+            const returnAmt = parseFloat(document.getElementById('repayAmount').value);
+            const loan = loans.find(l => l.id === loanId);
+
+            if (loan && returnAmt > 0) {
+                if (returnAmt >= loan.principal) {
+                    loan.principal = 0;
+                    loan.status = 'Settled';
+                    showToast("Principal fully returned! Loan marked as Settled.");
+                } else {
+                    loan.principal -= returnAmt;
+                    showToast(`Principal reduced by ₹${returnAmt.toLocaleString('en-IN')}`);
+                }
+                saveToLocalStorage();
+                closeModal('repayPrincipalModal');
+                refreshApp();
+            }
+        }
+
+        // --- PAYMENT REMINDER GENERATOR ---
+        function openReminderModal(loanId) {
+            const loan = loans.find(l => l.id === loanId);
+            if (!loan) return;
+
+            const expInterest = getMonthlyExpectedInterest(loan);
+            const curMonthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            currentReminderPhone = loan.contact ? loan.contact.replace(/[^0-9]/g, '') : '';
+
+            const template = `Hi ${loan.name}, hope you are doing well! Quick friendly reminder regarding the monthly interest of ₹${expInterest.toLocaleString('en-IN')} for ${curMonthName}. Please let me know once transferred. Thank you!`;
+
+            document.getElementById('reminderText').value = template;
+            openModal('reminderModal');
+        }
+
+        function sendWhatsAppReminder() {
+            const text = encodeURIComponent(document.getElementById('reminderText').value);
+            let url = `https://wa.me/?text=${text}`;
+            if (currentReminderPhone) {
+                url = `https://wa.me/${currentReminderPhone}?text=${text}`;
+            }
+            window.open(url, '_blank');
+        }
+
+        function copyReminderText() {
+            const copyText = document.getElementById("reminderText");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            showToast("Reminder message copied to clipboard!");
+        }
+
+        // --- BACKUP & EXPORT/IMPORT ---
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ loans, payments }, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Interest_Tracker_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importDataJSON(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.loans && imported.payments) {
+                        loans = imported.loans;
+                        payments = imported.payments;
+                        saveToLocalStorage();
+                        refreshApp();
+                        showToast("Data backup successfully restored!");
+                    } else {
+                        alert("Invalid backup file format.");
+                    }
+                } catch (err) {
+                    alert("Error parsing JSON file.");
+                }
+            };
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
+        // --- UI NAVIGATION & MODALS HELPER ---
+        function switchTab(tabKey) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-600', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+
+            document.getElementById(`tab-${tabKey}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabKey}`);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('border-indigo-600', 'text-indigo-600');
+        }
+
+        function openModal(id) {
+            if (id === 'addLoanModal' && !document.getElementById('loanId').value) {
+                document.getElementById('loanForm').reset();
+                document.getElementById('loanModalTitle').innerText = "Add New Borrower Loan";
+                document.getElementById('loanStartDate').value = new Date().toISOString().split('T')[0];
+            }
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            if (id === 'addLoanModal') {
+                document.getElementById('loanId').value = '';
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastMessage');
+            document.getElementById('toastText').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
